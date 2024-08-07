@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./static/css/style.css">
+    <title>QR Generator App</title>
+</head>
+<body>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <div id="app"></div>
+    <script type="text/jsx">
+        const app=document.getElementById('app')
+        const root=ReactDOM.createRoot(app);
+
+        function HomePage({children}){
+            return (
+                <div className="body">
+                    <div className="content">
+                        {children}
+                    </div>
+                </div>
+            );
+        }
+
+        function App(){
+            const [data,setData]=React.useState('Sample');
+
+            function updateQRData(event){
+                if(event.target.value==="")
+                    setData("Sample");
+                else
+                    setData(event.target.value);
+            }
+
+            function downloadQR(){
+                const url="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+data;
+                fetch(url)
+                .then(res=>res.blob())
+                .then(blob => {
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = 'qr_code.png';
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                })
+                .catch(()=>alert("Failed to download image"));
+            }
+
+            return (
+                <HomePage>
+                    <h1>QR Generator App</h1>
+                    <input id="textField" placeholder="Enter your text here" type="text" onChange={updateQRData}/>
+                    <img src={"https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+data} alt="QR Code" />
+                    <button className="btn" onClick={downloadQR}>Download QR</button>
+                </HomePage>
+            );
+        }
+
+        root.render(<App/>);
+    </script>
+</body>
+</html>
